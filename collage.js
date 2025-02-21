@@ -1,8 +1,11 @@
-let myFont; // Global font variable
+let myFont;         // Global font variable
+let cutoutsData;    // Will hold the data from cutouts.json
 
 function preload() {
-  // Adjust the path as needed for your project.
+  // Load the font (adjust the path if needed)
   myFont = loadFont('assets/Arial.ttf');
+  // Load cutouts.json which lists your cutout image paths
+  cutoutsData = loadJSON("cutouts.json");
 }
 
 const flatColors = ["#000000"];
@@ -11,18 +14,15 @@ let layerCount = 0; // Counts total layers added
 
 function setup() {
   canvasHeight = window.innerHeight;
-  //canvasWidth = (canvasHeight * 3) / 4;
+  // Here, we use the full window width
   canvasWidth = window.innerWidth;
-
   canvasElement = createCanvas(canvasWidth, canvasHeight, WEBGL);
   perspective(PI / 3, canvasWidth / canvasHeight, 0.1, 10000);
   // Disable depth test so drawing order determines stacking.
   drawingContext.disable(drawingContext.DEPTH_TEST);
   background(random(flatColors));
   noStroke();
-  // Set the loaded font for text rendering.
   textFont(myFont);
-  // Start the automatic collage generation.
   createCollage();
 }
 
@@ -38,7 +38,7 @@ async function createCollage() {
     for (let i = 0; i < numCutouts; i++) {
       await addCutout();
       layerCount++;
-      // Every 5 layers, add a random text snippet.
+      // Every 4 layers, add a random text snippet.
       if (layerCount % 4 === 0) {
         await addRandomText();
       }
@@ -56,16 +56,11 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+// Updated fetchCutout() uses the JSON data.
 async function fetchCutout() {
-  try {
-    const response = await fetch("http://127.0.0.1:5000/get_cutout");
-    if (!response.ok) throw new Error("Failed to fetch cutout");
-    const data = await response.json();
-    return `http://127.0.0.1:5000${data.cutout}`;
-  } catch (error) {
-    console.error("Error fetching cutout:", error);
-    return null;
-  }
+  // cutoutsData was loaded in preload()
+  let arr = cutoutsData.cutouts;
+  return random(arr);  // Pick a random image path from the array.
 }
 
 async function fetchText() {
@@ -102,7 +97,7 @@ async function addCutout() {
     const origWidth = img.width / dpr;
     const origHeight = img.height / dpr;
     
-    // Randomize scale between 0.2 and 1.
+    // Randomize scale between 0.1 and 1.6.
     const scaleFactor = random(0.1, 1.6);
     const finalWidth = origWidth * scaleFactor;
     const finalHeight = origHeight * scaleFactor;
@@ -134,7 +129,7 @@ async function addRandomText() {
   const randomText = await fetchText();
   if (!randomText) return;
   
-  // Choose a random font size between 100 and 400 pixels.
+  // Choose a random font size between 50 and 400 pixels.
   const fontSize = floor(random(50, 400));
   // Choose a random position in WEBGL's centered coordinate system.
   const tx = random(-canvasWidth / 2, canvasWidth / 2);
@@ -143,7 +138,7 @@ async function addRandomText() {
   push();
     textAlign(CENTER, CENTER);
     textSize(fontSize);
-    fill(255); // Draw text in black.
+    fill(255); // Draw text in white.
     text(randomText, tx, ty);
   pop();
   

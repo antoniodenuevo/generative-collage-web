@@ -1,11 +1,13 @@
 let myFont;         // Global font variable
 let cutoutsData;    // Will hold the data from cutouts.json
+let textData;       // Will hold the data from text.json
 
 function preload() {
   // Load the font (adjust the path if needed)
   myFont = loadFont('assets/Arial.ttf');
-  // Load cutouts.json which lists your cutout image paths
+  // Load JSON files with your asset paths and text snippets.
   cutoutsData = loadJSON("cutouts.json");
+  textData = loadJSON("product_texts.json");
 }
 
 const flatColors = ["#000000"];
@@ -14,7 +16,7 @@ let layerCount = 0; // Counts total layers added
 
 function setup() {
   canvasHeight = window.innerHeight;
-  // Here, we use the full window width
+  // Using full window width here.
   canvasWidth = window.innerWidth;
   canvasElement = createCanvas(canvasWidth, canvasHeight, WEBGL);
   perspective(PI / 3, canvasWidth / canvasHeight, 0.1, 10000);
@@ -58,21 +60,14 @@ function sleep(ms) {
 
 // Updated fetchCutout() uses the JSON data.
 async function fetchCutout() {
-  // cutoutsData was loaded in preload()
   let arr = cutoutsData.cutouts;
   return random(arr);  // Pick a random image path from the array.
 }
 
+// Updated fetchText() to use the text JSON.
 async function fetchText() {
-  try {
-    const response = await fetch("http://127.0.0.1:5000/get_text");
-    if (!response.ok) throw new Error("Failed to fetch text");
-    const data = await response.json();
-    return data.text;
-  } catch (error) {
-    console.error("Error fetching text:", error);
-    return null;
-  }
+  let arr = textData.texts;
+  return random(arr);  // Pick a random text snippet.
 }
 
 function loadImagePromise(url) {

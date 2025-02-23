@@ -66,9 +66,11 @@ async function fetchCutout() {
 
 // Updated fetchText() to use the text JSON.
 async function fetchText() {
-  let arr = textData.texts;
+  let arr = textData["1"]; // Use the key "1" from your JSON
   return random(arr);  // Pick a random text snippet.
 }
+
+
 
 function loadImagePromise(url) {
   return new Promise((resolve, reject) => {
